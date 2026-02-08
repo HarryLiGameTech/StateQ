@@ -1,0 +1,3 @@
+[submodule "simulator/QuEST"]
+	path = simulator/QuEST
+	url = https://github.com/QuEST-Kit/QuEST

@@ -1,0 +1,86 @@
+digraph Stateq {
+
+    rankdir = LR;
+    rank = same;
+    compound = true;
+    margin = 20;
+    node [shape = box];
+    
+    subgraph cluster_DevelopmentEnvironment {
+        label = "Development Environment";
+        StateqSource -> StateqCompiler -> CompiledStateqProgram;
+        HostProgram -> HostCompiler -> ClassicalExecutable;
+        
+        StateqSource [label = "Stateq Source File" shape = note];
+        ClassicalExecutable [label = "Classical Executable File", shape = note];
+        
+        
+        StateqCompiler [label="Stateq Compiler"];
+        HostCompiler [label="Host Language Compiler"];
+        
+        subgraph cluster_HostProject {
+            label = "Host Project";
+            
+            CompiledStateqProgram -> HostProgram;
+            
+            HostProgram [label="Host Program" shape=note];
+            CompiledStateqProgram [label="Compiled Stateq Program" shape=note];
+        }
+    }
+    
+    ClassicalExecutable -> Execution [constraint = false];
+    
+    QuantumDriver -> CompiledCircuit [minlen = 0, style=invis];
+  
+    subgraph cluster_ClassicalRuntime {
+        
+        label = "Classical Runtime";
+        
+        Execution [label = "Execution", shape = diamond];
+        
+        subgraph cluster_QIVM {
+            
+            label="Quantum Intermediate Virtual Machine";
+            
+            subgraph cluster_JITCompiler {
+                label="JIT Compiler";
+                CircuitCompiler -> CompiledCircuit;
+                CompiledCircuit -> BytecodeCompiler;
+                
+                
+                CompiledCircuit [label = "Compiled Circuit", shape=note];
+                
+                CircuitCompiler [label="Circuit Compiler"];
+                BytecodeCompiler [label="Bytecode Compiler"];
+            }
+            
+            SourceCircuit -> CircuitCompiler;
+            BytecodeCompiler -> Bytecode
+            
+            SourceCircuit [label = "Source Circuit", shape=note];
+            Bytecode [label = "QIVM Bytecode", shape=note];
+        }
+    
+        subgraph cluster_QIL {
+            label = "Quantum Interface Layer";
+            
+            BytecodeInterpreter -> QuantumDriver;
+            QuantumDriver -> ResultProcessor;
+            
+            BytecodeInterpreter [label = "Bytecode Interpreter"]
+            QuantumDriver [label = "Quantum Device Driver"]
+            ResultProcessor [label = "Result Processer"];
+        }
+        
+        Bytecode -> BytecodeInterpreter [constraint = false];
+        Execution -> SourceCircuit [constraint = false];
+    }
+  
+    subgraph cluster_QuantumRuntime {
+        label = "Quantum Runtime";
+        QuantumDevice [label = "Quantum Device", shape = box3d]
+    }
+    
+    QuantumDriver -> QuantumDevice;
+    QuantumDevice -> QuantumDriver;
+}

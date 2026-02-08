@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.20'
+    id 'org.graalvm.buildtools.native' version '0.9.19'
+    id 'antlr'
+}
+
+group = 'org.stateq'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    /* Main */
+    antlr 'org.antlr:antlr4:4.11.1'
+    implementation 'org.antlr:antlr4-runtime:4.11.1'
+    implementation 'org.graalvm.sdk:graal-sdk:19.3.0'
+    implementation 'com.google.guava:guava:30.1.1-jre'
+    implementation "org.jetbrains.kotlinx:multik-core:0.2.2"
+    implementation "org.jetbrains.kotlinx:multik-kotlin:0.2.2"
+
+    /* Tests */
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    testCompileOnly 'org.junit.jupiter:junit-jupiter-params:5.9.0'
+}
+
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/kotlin'
+    main.java.srcDirs += 'src/main/java'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+generateGrammarSource {
+    outputDirectory = file("src/main/java/org/stateq/antlr")
+    arguments += ["-visitor", "-long-messages", "-package", "org.stateq.antlr"]
+}
+
+compileKotlin {
+    dependsOn generateGrammarSource
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileJava {
+    sourceCompatibility = 17
+    targetCompatibility = 17
+}
+
+nativeBuild {
+    imageName = 'libstateq'
+    sharedLibrary = true
+    useFatJar = true
+    richOutput = true
+    buildArgs.add "-H:CCompilerOption=-I" + project.projectDir + "/src/main/native"
+    buildArgs.add "-g"
+}

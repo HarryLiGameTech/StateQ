@@ -1,0 +1,15 @@
+[package]
+name = "stateq-compiler"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "stateq_compiler"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = "1.0.70"
